@@ -53,22 +53,22 @@ class TagCache {
     try {
       // NOTE(@mxstbr): This is a multi execution because if any of the commands is invalid
       // we don't want to execute anything
-      const multi = await this.redis.multi();
+      // const multi = await this.redis.multi();
 
       // Add the key to each of the tag sets
       tags.forEach(tag => {
-        multi.sadd(`tags:${tag}`, key);
+        this.redis.sadd(`tags:${tag}`, key);
       });
 
       const timeout =
         (options && options.timeout) || this.options.defaultTimeout;
       // Add the data to the key
       if (typeof timeout === 'number') {
-        multi.set(`data:${key}`, JSON.stringify(data), 'ex', timeout);
+        this.redis.set(`data:${key}`, JSON.stringify(data), 'ex', timeout);
       } else {
-        multi.set(`data:${key}`, JSON.stringify(data));
+        this.redis.set(`data:${key}`, JSON.stringify(data));
       }
-      await multi.exec();
+      // await this.redis.exec();
       return;
     } catch (err) {
       return Promise.reject(err);
